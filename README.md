@@ -58,8 +58,9 @@ Este microservicio expone un **endpoint** para recibir un archivo de audio en fo
 1. Clona este repositorio:
 
    ```bash
-   git clone https://github.com/tu-usuario/tu-repo.git
-   cd tu-repo
+   git clone https://github.com/nachog95/ffmpeg-Docker.git
+   cd ffmpeg-Docker
+   cd astapi-ffmpeg-compress
    ```
 
 2. Construye la imagen y levanta el contenedor:
