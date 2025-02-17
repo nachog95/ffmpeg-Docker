@@ -1,0 +1,299 @@
+{
+  "name": "Podcast to Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "hour": 7
+            }
+          ]
+        },
+        "feedUrl": "https://anchor.fm/s/6dd99ff0/podcast/rss"
+      },
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        -20
+      ],
+      "id": "76ae5941-4a73-41d9-9ff9-79e8edbd7901",
+      "name": "RSS Feed Trigger"
+    },
+    {
+      "parameters": {
+        "resource": "assistant",
+        "assistantId": {
+          "__rl": true,
+          "value": "asst_cXTUNhAonQBeXBnhvWRMZXuO",
+          "mode": "list",
+          "cachedResultName": "Podcast a Telegram"
+        },
+        "prompt": "define",
+        "text": "={{ $json.contentSnippet }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        100,
+        -20
+      ],
+      "id": "6da869f3-d758-4219-9e5a-0640b4689a58",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "0Dzi4AquwyrD9P0r",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('RSS Feed Trigger').item.json.enclosure.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        -20
+      ],
+      "id": "31d545c2-9115-43ec-b9a6-6f8c1926f329",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "-1002357119892",
+        "binaryData": true,
+        "additionalFields": {
+          "caption": "=🎙️{{ $('OpenAI').item.json.output }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1240,
+        -20
+      ],
+      "id": "fa1123d5-b234-422c-b054-8c8ab310c6a4",
+      "name": "Telegram",
+      "webhookId": "53016861-7089-472f-808d-802ba2b9fa22",
+      "credentials": {
+        "telegramApi": {
+          "id": "PjB1DNMSoyuahkw7",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/compress_audio",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        780,
+        -20
+      ],
+      "id": "ccfbd0af-1c9a-4b7b-b8dc-d8e40a48441c",
+      "name": "HTTP Request1",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtenemos todos los items que llegan a este nodo\nconst items = $input.all();\n\n// Recorremos cada item\nfor (const item of items) {\n\n  // Tomamos el título del RSS (ajusta el nombre del nodo y la propiedad según tu caso)\n  const title = $node[\"RSS Feed Trigger\"].json[\"title\"] || \"MiPodcast\";\n\n  // Comprobamos si existe la parte binaria con la key \"data\"\n  if (item.binary && item.binary.data) {\n    // Renombramos el archivo a \"titulo.mp3\"\n    item.binary.data.fileName = title + \".mp3\";\n  }\n}\n\n// Devolvemos todos los items con los cambios aplicados\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        -20
+      ],
+      "id": "e6e0436d-9c5e-4d90-935f-861952089f96",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "content": "## Fuente RSS\nOBTENEMOS EL FEED DE SPOTIFY",
+        "height": 320,
+        "width": 260
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -280,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "8c75ab3b-2b98-4603-92c6-6f0050d77bca",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## OpenAI\nObtemos el Caption del mensaje mediente un asistente de OpenAI.",
+        "height": 320,
+        "width": 320,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        60,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "ec76a24c-42d8-4050-bd7e-950428f2a6fb",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Descarga del Audio \nDescargamos el audio del RSS\n",
+        "height": 320,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        440,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "16732918-a731-4272-bb6c-b33250ad5b62",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Compresión\nMandamos el audio a comprimir por las restrcciones de telegra ",
+        "height": 320,
+        "width": 220,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "14e92bb9-05a4-48e0-b5a5-1311053041cb",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Renombre\nRenombramos el fichero con el nombre del episodio",
+        "height": 320,
+        "width": 220,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "7ad20f6a-7e80-464c-b77c-f0e018dae461",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Envío a Telegram\nEnviamos el audio y la descripción ",
+        "height": 320,
+        "width": 180
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "b7362e89-ca05-4beb-9e4f-8a0790931cfe",
+      "name": "Sticky Note5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "RSS Feed Trigger": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c1a6118c-3402-461a-b1c3-6545b5d6664f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "233777579c5ee51a7bc67cf9c71599f90baf3bd994cdd67bf72bbd5977ec2710"
+  },
+  "id": "JZY9LSxQjNw3BwIj",
+  "tags": []
+}
