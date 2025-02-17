@@ -164,7 +164,4 @@ Puedes modificar flags como:
 3. **Escalabilidad**  
    Para procesar varios archivos simultáneamente, se puede escalar contenedores en Kubernetes o usar una cola (ej. RabbitMQ, Redis) para colas de trabajo.
 
----
 
-## Licencia
-El proyecto se distribuye bajo la [MIT License](LICENSE). ¡Siéntete libre de usarlo, modificarlo y proponer mejoras!
