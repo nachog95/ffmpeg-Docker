@@ -1,5 +1,5 @@
 
-# Microservicio FastAPI con FFmpeg
+# Microservicio FastAPI con FFmpeg para n8n
 
 ¡Bienvenido a nuestro microservicio de compresión/conversión de audio!  
 Este proyecto usa **FastAPI** y **FFmpeg** para procesar archivos de audio (por ejemplo, comprimirlos a distintos bitrates) y devolverlos vía API.
@@ -14,6 +14,7 @@ Este proyecto usa **FastAPI** y **FFmpeg** para procesar archivos de audio (por 
   - [Endpoint de Salud](#endpoint-de-salud)
   - [Endpoint de Compresión](#endpoint-de-compresión)
 - [Ejemplo de Integración con n8n](#ejemplo-de-integración-con-n8n)
+  - [Ejemplo de automatización (Podcast_to_Telegram.json)](#ejemplo-de-automatización-podcast_to_telegramjson)
 - [Personalización de Parámetros FFmpeg](#personalización-de-parámetros-ffmpeg)
 - [Notas y Consejos](#notas-y-consejos)
 - [Licencia](#licencia)
@@ -40,10 +41,13 @@ Este microservicio expone un **endpoint** para recibir un archivo de audio en fo
 
 ```
 .
-├── main.py                # Código principal de la API (FastAPI + FFmpeg)
-├── Dockerfile             # Imagen Docker (Python + FFmpeg)
-├── docker-compose.yml     # Orquestación con Docker Compose
-└── requirements.txt       # Dependencias de Python (fastapi, uvicorn, etc.)
+├── fastapi-ffmpeg-compress    # Carpeta con el microservicio
+│   ├── main.py                # Código principal de la API (FastAPI + FFmpeg)
+│   ├── Dockerfile             # Imagen Docker (Python + FFmpeg)
+│   ├── docker-compose.yml     # Orquestación con Docker Compose
+│   └── requirements.txt       # Dependencias de Python (fastapi, uvicorn, etc.)
+├── Podcast_to_Telegram (2).json   # Ejemplo de flujo/automatización en n8n
+└── README.md                  # Este fichero
 ```
 
 ---
@@ -72,7 +76,7 @@ Este microservicio expone un **endpoint** para recibir un archivo de audio en fo
    ```
    http://localhost:8000/health
    ```
-   Si el servicio está bien, deberías ver:
+   Si el servicio está bien, verás:
    ```json
    { "status": "OK" }
    ```
@@ -107,15 +111,27 @@ Esto enviará `tu_audio.m4a` y descargará la respuesta comprimida como `resulta
 ---
 
 ## Ejemplo de Integración con n8n
-Puedes integrar este microservicio con [n8n](https://n8n.io/) de la siguiente forma:
+Puedes integrar este microservicio con [n8n](https://n8n.io/) de muchas maneras. Lo básico es:
 
-1. Usa un **nodo HTTP Request** (método POST).
+1. Usar un **nodo HTTP Request** (método POST).
 2. URL: `http://localhost:8000/compress_audio` (o `host.docker.internal:8000` si n8n está en otro contenedor en Docker Desktop).
 3. Body Content Type: `Form-Data`.
 4. Añade un campo:
-   - Name: `file`
-   - Value: la propiedad binaria que contenga el audio.
+   - **Name**: `file`
+   - **Value**: la propiedad binaria que contenga el audio.
 5. Ejecuta el nodo; obtendrás de vuelta un archivo binario comprimido.
+
+### Ejemplo de automatización (`Podcast_to_Telegram.json`)
+En la carpeta raíz se incluye un fichero JSON: **`Podcast_to_Telegram (2).json`**, que representa un flujo de n8n que:
+
+1. **Lee un feed RSS** (mediante un nodo *RSS Feed Trigger*), para obtener los últimos episodios de un podcast.  
+2. **Genera o define el Caption** del mensaje con un nodo *OpenAI*, usando el contenido del RSS como prompt.  
+3. **Descarga el audio** (nodo *HTTP Request*).  
+4. **Llama a este microservicio** (otro *HTTP Request*) para comprimir el audio.  
+5. **Renombra el binario** con el título del episodio (nodo *Code*).  
+6. **Envía el audio y la descripción a Telegram** (nodo *Telegram*).  
+
+Puedes importar el flujo **`Podcast_to_Telegram (2).json`** directamente en n8n para probar todo el pipeline de forma automatizada.
 
 ---
 
@@ -140,7 +156,7 @@ Puedes modificar flags como:
 
 ## Notas y Consejos
 1. **Persistencia de Archivos**  
-   Actualmente, el servicio maneja los archivos temporalmente dentro del contenedor y los borra tras la conversión. Si quieres guardar en un bucket (S3, etc.), deberás modificar el código en `main.py`.
+   Actualmente, el servicio maneja los archivos temporalmente dentro del contenedor y los borra tras la conversión. Si quieres guardar el resultado en un bucket (S3, etc.), tendrás que ajustar el código.
 
 2. **Seguridad y Validaciones**  
    ffmpeg es potente, pero conviene validar el formato/tamaño de los archivos, especialmente en entornos de producción.
@@ -150,3 +166,5 @@ Puedes modificar flags como:
 
 ---
 
+## Licencia
+El proyecto se distribuye bajo la [MIT License](LICENSE). ¡Siéntete libre de usarlo, modificarlo y proponer mejoras!
