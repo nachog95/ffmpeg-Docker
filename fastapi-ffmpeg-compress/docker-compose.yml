@@ -1,0 +1,6 @@
+services:
+  fastapi-ffmpeg-service:
+    build: .
+    container_name: fastapi-ffmpeg-container
+    ports:
+      - "8000:8000"
