@@ -150,5 +150,3 @@ Puedes modificar flags como:
 
 ---
 
-## Licencia
-El proyecto se distribuye bajo la [MIT License](LICENSE). ¡Siéntete libre de usarlo, modificarlo y proponer mejoras!  
