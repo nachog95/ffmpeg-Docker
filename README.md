@@ -64,7 +64,7 @@ Este microservicio expone un **endpoint** para recibir un archivo de audio en fo
    cd ffmpeg-Docker
     ```
     ```bash
-   cd astapi-ffmpeg-compress
+   cd fastapi-ffmpeg-compress
    ```
 
 2. Construye la imagen y levanta el contenedor:
