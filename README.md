@@ -59,7 +59,11 @@ Este microservicio expone un **endpoint** para recibir un archivo de audio en fo
 
    ```bash
    git clone https://github.com/nachog95/ffmpeg-Docker.git
+   ```
+    ```bash
    cd ffmpeg-Docker
+    ```
+    ```bash
    cd astapi-ffmpeg-compress
    ```
 
@@ -67,6 +71,8 @@ Este microservicio expone un **endpoint** para recibir un archivo de audio en fo
 
    ```bash
    docker compose build
+   ```
+   ```bash
    docker compose up
    ```
    Esto:
