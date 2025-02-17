@@ -132,7 +132,11 @@ Puedes integrar este microservicio con [n8n](https://n8n.io/) de muchas maneras.
 En la carpeta raíz se incluye un fichero JSON: **`Podcast_to_Telegram (2).json`**, que representa un flujo de n8n que:
 
 1. **Lee un feed RSS** (mediante un nodo *RSS Feed Trigger*), para obtener los últimos episodios de un podcast.  
-2. **Genera o define el Caption** del mensaje con un nodo *OpenAI*, usando el contenido del RSS como prompt.  
+2. **Genera o define el Caption** del mensaje con un nodo *OpenAI*, usando el contenido del RSS como prompt y pasándoselo a un asistente con las siguiente **System Instructions**
+  ```bash
+    Te voy a pasar un texto que pertenece a la descripción de un episodio de podcast, quiero que me desgloses un resumen de una línea  con la idea principal del mismo.
+Muéstrame únicamente lo que te pido no introduzcas las secciones ni metas ninguna coletilla.
+```  
 3. **Descarga el audio** (nodo *HTTP Request*).  
 4. **Llama a este microservicio** (otro *HTTP Request*) para comprimir el audio.  
 5. **Renombra el binario** con el título del episodio (nodo *Code*).  
